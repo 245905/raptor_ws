@@ -15,18 +15,16 @@ extern "C"
 #include <libVescCan/VESC.h>
 }
 
-class SamplerStatusForwarder
+class SamplerStatusForwarder : public rclcpp::Node
 {
 public:
-	SamplerStatusForwarder(rclcpp::Node::SharedPtr &nh);
+	SamplerStatusForwarder(const rclcpp::NodeOptions & options);
 
 private:
 	void samplerStatusGrabber(const can_msgs::msg::Frame::ConstSharedPtr &frame);
 	void statusPublisher();
 
 	void newStatus8(VESC_Status_8 &status8);
-
-	rclcpp::Node::SharedPtr mNh;
 
 	VESC_Status_8 mStatus8;
 	bool mStatus8Fresh = false;
