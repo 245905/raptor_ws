@@ -3,14 +3,17 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include <string>
-#include <can_msgs/msg/frame.hpp>
 #include <memory>
 #include <array>
+
 #include "can_bridge/VescInterop.hpp"
 #include "can_bridge/RosCanConstants.hpp"
+
+#include <can_msgs/msg/frame.hpp>
 #include "rex_interfaces/msg/wheels.hpp"
 #include "rex_interfaces/msg/rover_status.hpp"
 #include "rex_interfaces/msg/battery_info.hpp"
+
 extern "C"
 {
 #include <libVescCan/VESC.h>
@@ -19,10 +22,10 @@ extern "C"
 /**
  * @brief Class for interfacing ROS with CAN bus.
  */
-class MotorControl
+class MotorControl : public rclcpp::Node
 {
 public:
-	MotorControl(rclcpp::Node::SharedPtr &nh);
+	MotorControl(const rclcpp::NodeOptions & options);
 
 	void sendMotorVel(const rex_interfaces::msg::Wheels::ConstSharedPtr &msg);
 
@@ -46,8 +49,6 @@ private:
 	void setWheelsOrigin();
 	void setCorrectState();
 	void handleTimerClb();
-
-	rclcpp::Node::SharedPtr mNh;
 
 	rclcpp::Publisher<can_msgs::msg::Frame>::SharedPtr mRawCanPub;				  /**< ROS2 publisher for raw CAN messages. */
 	rclcpp::Subscription<rex_interfaces::msg::Wheels>::SharedPtr mSetMotorVelSub; /**< ROS2 subscriber for motor velocity messages. */

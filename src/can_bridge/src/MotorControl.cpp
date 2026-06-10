@@ -1,6 +1,6 @@
 #include "can_bridge/MotorControl.hpp"
 
-MotorControl::MotorControl(rclcpp::Node::SharedPtr &nh) : mNh(nh)
+MotorControl::MotorControl(const rclcpp::NodeOptions & options) : Node("motor_control", options)
 {
 	const rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(256));
 
@@ -9,25 +9,28 @@ MotorControl::MotorControl(rclcpp::Node::SharedPtr &nh) : mNh(nh)
 	mLastBatteryInfo = std::make_shared<const rex_interfaces::msg::BatteryInfo>();
 	mLastRoverStatus = std::make_shared<const rex_interfaces::msg::RoverStatus>();
 
-	mRawCanPub = mNh->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
-	mSetMotorVelSub = mNh->create_subscription<rex_interfaces::msg::Wheels>(
+	mRawCanPub = this->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
+
+    mSetMotorVelSub = this->create_subscription<rex_interfaces::msg::Wheels>(
 		RosCanConstants::RosTopics::can_set_motor_vel,
 		qos, std::bind(&MotorControl::handleSetMotorVel, this, std::placeholders::_1));
-	mBatteryInfoSub = mNh->create_subscription<rex_interfaces::msg::BatteryInfo>(
+
+    mBatteryInfoSub = this->create_subscription<rex_interfaces::msg::BatteryInfo>(
 		RosCanConstants::RosTopics::can_battery_info,
 		qos, std::bind(&MotorControl::handleBatteryInfo, this, std::placeholders::_1));
-	mRoverStatusSub = mNh->create_subscription<rex_interfaces::msg::RoverStatus>(
+
+    mRoverStatusSub = this->create_subscription<rex_interfaces::msg::RoverStatus>(
 		RosCanConstants::RosTopics::mqtt_rover_status,
 		qos, std::bind(&MotorControl::handleRoverStatus, this, std::placeholders::_1));
 
-	mTimer = mNh->create_timer(std::chrono::milliseconds(500), std::bind(&MotorControl::handleTimerClb, this));
+	mTimer = this->create_timer(std::chrono::milliseconds(500), std::bind(&MotorControl::handleTimerClb, this));
 }
 
 void MotorControl::handleSetMotorVel(const rex_interfaces::msg::Wheels::ConstSharedPtr &msg)
 {
 	if (mState != State::Driving)
 	{
-		RCLCPP_WARN_THROTTLE(mNh->get_logger(), *mNh->get_clock(), 1 * 60 * 1000, // Throttle duration (1 minute)
+		RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 1 * 60 * 1000, // Throttle duration (1 minute)
 							 "Ignoring drive command. Mode is not driving!");
 		return;
 	}
@@ -51,7 +54,7 @@ void MotorControl::stopMotors()
 {
 	rex_interfaces::msg::Wheels rover_wheels_velocity_temp;
 
-	rover_wheels_velocity_temp.header.stamp = mNh->get_clock()->now();
+	rover_wheels_velocity_temp.header.stamp = this->now();
 
 	rover_wheels_velocity_temp.front_left.turn.command_id = VESC_COMMAND_SET_POS;
 	rover_wheels_velocity_temp.front_left.turn.set_value = 0.0;
@@ -85,7 +88,7 @@ void MotorControl::setWheelsOrigin()
 {
 	rex_interfaces::msg::Wheels rover_wheels_velocity_temp;
 
-	rover_wheels_velocity_temp.header.stamp = mNh->get_clock()->now();
+	rover_wheels_velocity_temp.header.stamp = this->now();
 
 	rover_wheels_velocity_temp.front_left.drive.command_id = VESC_COMMAND_SET_CURRENT;
 	rover_wheels_velocity_temp.front_left.turn.command_id = VESC_COMMAND_SET_ORIGIN;
@@ -128,13 +131,13 @@ void MotorControl::setCorrectState()
 	case State::DriveStop:
 		mState = State::PrepDriving;
 		mSetWheelsOriginCtd = 20;
-		RCLCPP_INFO(mNh->get_logger(), "Prepping for driving... Setting cupamars origin.");
+		RCLCPP_INFO(this->get_logger(), "Prepping for driving... Setting cupamars origin.");
 		break;
 
 	case State::PrepDriving:
 		if (mSetWheelsOriginCtd != 0)
 			break;
-		RCLCPP_INFO(mNh->get_logger(), "Prepping finished.");
+		RCLCPP_INFO(this->get_logger(), "Prepping finished.");
 
 		if (mLastRoverStatus->control_mode == mLastRoverStatus->CONTROL_MODE_ESTOP)
 			mState = State::EStop;
@@ -253,7 +256,7 @@ can_msgs::msg::Frame MotorControl::encodeMotorVel(const rex_interfaces::msg::Ves
 	VESC_convertCmdToRaw(&rf, &cmdf);
 
 	can_msgs::msg::Frame fr = VescInterop::vescToRos(rf);
-	fr.header.stamp = rclcpp::Clock().now();
+	fr.header.stamp = this->now();
 
 	return fr;
 }
