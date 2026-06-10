@@ -1,17 +1,20 @@
 #include <can_bridge/SamplerControl.hpp>
 
-SamplerControl::SamplerControl(rclcpp::Node::SharedPtr &nh) : mNh(nh)
+SamplerControl::SamplerControl(const rclcpp::NodeOptions & options) : Node("sampler_control", options)
 {
 	const rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(5));
 
-	mRawCanPub = mNh->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
-	mSamplerCtlSub = mNh->create_subscription<SamplerControlMsg>(
+	mRawCanPub = this->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
+
+    mSamplerCtlSub = this->create_subscription<SamplerControlMsg>(
 		RosCanConstants::RosTopics::mqtt_sampler_control, qos,
 		std::bind(&SamplerControl::handleSamplerCtl, this, std::placeholders::_1));
-	mRoverStatusSub = mNh->create_subscription<RoverStatusMsg>(
+
+    mRoverStatusSub = this->create_subscription<RoverStatusMsg>(
 		RosCanConstants::RosTopics::mqtt_rover_status, qos,
 		std::bind(&SamplerControl::handleRoverStatusClb, this, std::placeholders::_1));
-	mTimer = mNh->create_timer(std::chrono::milliseconds(50), std::bind(&SamplerControl::handleTimerClb, this));
+
+    mTimer = this->create_timer(std::chrono::milliseconds(50), std::bind(&SamplerControl::handleTimerClb, this));
 
 	mRoverStatusMsgLast = std::make_shared<const RoverStatusMsg>();
 
@@ -38,7 +41,7 @@ void SamplerControl::stopSampler()
 
 	mSamplerCtlMsgLast = std::make_shared<const SamplerControlMsg>(temp);
 
-	mProbeDisableTimestamp = mNh->now();
+	mProbeDisableTimestamp = this->now();
 }
 
 void SamplerControl::handleSamplerCtl(const SamplerControlMsg::ConstSharedPtr &samplerCtlMsg)
@@ -46,7 +49,7 @@ void SamplerControl::handleSamplerCtl(const SamplerControlMsg::ConstSharedPtr &s
 	if (isSamplerMode(mRoverStatusMsgLast))
 		mSamplerCtlMsgLast = samplerCtlMsg;
 	else
-		RCLCPP_WARN_THROTTLE(mNh->get_logger(), *mNh->get_clock(), 5 * 60 * 1000, // Throttle duration (5 minutes)
+		RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5 * 60 * 1000, // Throttle duration (5 minutes)
 							 "When non-sampler mode is selected, incoming SamplerControl MQTT messages are discarded.");
 }
 
@@ -67,7 +70,7 @@ void SamplerControl::handleRoverStatusClb(const RoverStatusMsg::ConstSharedPtr &
 
 void SamplerControl::handleTimerClb()
 {
-	bool is_within_grace_period = (mNh->now() - mProbeDisableTimestamp < rclcpp::Duration(1, 0)); // 1 sec grace
+	bool is_within_grace_period = (this->now() - mProbeDisableTimestamp < rclcpp::Duration(1, 0)); // 1 sec grace
 
 	if (isSamplerMode(mRoverStatusMsgLast) || is_within_grace_period)
 	{

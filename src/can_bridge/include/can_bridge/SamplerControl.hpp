@@ -3,12 +3,15 @@
 
 #include "rclcpp/rclcpp.hpp"
 #include <string>
-#include "can_msgs/msg/frame.hpp"
 #include <array>
+
 #include <can_bridge/VescInterop.hpp>
 #include "can_bridge/RosCanConstants.hpp"
+
+#include "can_msgs/msg/frame.hpp"
 #include "rex_interfaces/msg/sampler_control.hpp"
 #include "rex_interfaces/msg/rover_status.hpp"
+
 extern "C"
 {
 #include <libVescCan/VESC.h>
@@ -17,10 +20,10 @@ extern "C"
 using SamplerControlMsg = rex_interfaces::msg::SamplerControl;
 using RoverStatusMsg = rex_interfaces::msg::RoverStatus;
 
-class SamplerControl
+class SamplerControl : public rclcpp::Node
 {
 public:
-	SamplerControl(rclcpp::Node::SharedPtr &nh);
+	SamplerControl(const rclcpp::NodeOptions & options);
 
 private:
 	bool isSamplerMode(const RoverStatusMsg::ConstSharedPtr &msg);
@@ -30,8 +33,6 @@ private:
 	void handleTimerClb();
 	void publishSamplerData();
 	void publish(const VESC_CommandFrame *arr, int arr_size);
-
-	rclcpp::Node::SharedPtr mNh;
 
 	rclcpp::Publisher<can_msgs::msg::Frame>::SharedPtr mRawCanPub;	   /**< ROS publisher for raw CAN messages. */
 	rclcpp::Subscription<SamplerControlMsg>::SharedPtr mSamplerCtlSub; /**< ROS subscriber for SamplerControl messages. */
