@@ -1,6 +1,6 @@
 #include "can_bridge/StatusMessage.hpp"
 
-StatusMessage::StatusMessage(rclcpp::Node::SharedPtr &nh, bool sendOnUpdate) : mNh(nh)
+StatusMessage::StatusMessage(const rclcpp::NodeOptions & options, bool sendOnUpdate) : Node("status_message", options)
 {
 	rex_interfaces::msg::RoverStatus zeroMsg;
 	zeroMsg.communication_state = 0;
@@ -10,8 +10,10 @@ StatusMessage::StatusMessage(rclcpp::Node::SharedPtr &nh, bool sendOnUpdate) : m
 	mSendOnUpdate = sendOnUpdate;
 
 	const rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(256));
-	mRawCanPub = nh->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
-	mStatusMessageSub = nh->create_subscription<rex_interfaces::msg::RoverStatus>(
+
+    mRawCanPub = this->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
+
+    mStatusMessageSub = this->create_subscription<rex_interfaces::msg::RoverStatus>(
 		RosCanConstants::RosTopics::mqtt_rover_status, qos,
 		std::bind(&StatusMessage::handleStatusMessage, this, std::placeholders::_1));
 }
