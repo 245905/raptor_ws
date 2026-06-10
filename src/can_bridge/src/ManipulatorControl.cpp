@@ -1,15 +1,16 @@
 #include "can_bridge/ManipulatorControl.hpp"
 
-ManipulatorControl::ManipulatorControl(rclcpp::Node::SharedPtr &nh) : mNh(nh)
+ManipulatorControl::ManipulatorControl(const rclcpp::NodeOptions & options) : Node("manipulator_control", options)
 {
 	const rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(256));
 
-	mRawCanPub = mNh->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
-	mManipulatorCtlSub = mNh->create_subscription<rex_interfaces::msg::ManipulatorControl>(
+	mRawCanPub = this->create_publisher<can_msgs::msg::Frame>(RosCanConstants::RosTopics::can_raw_TX, qos);
+
+    mManipulatorCtlSub = this->create_subscription<rex_interfaces::msg::ManipulatorControl>(
 		RosCanConstants::RosTopics::can_manipulator_ctl, qos, 
 		std::bind(&ManipulatorControl::handleManipulatorCtl, this, std::placeholders::_1));
 }
-void ManipulatorControl::handleManipulatorCtl(const rex_interfaces::msg::ManipulatorControl::ConstSharedPtr& manipulatroCtlMsg)
+void ManipulatorControl::handleManipulatorCtl(const rex_interfaces::msg::ManipulatorControl::ConstSharedPtr& manipulatorCtlMsg)
 {
 	// 7 since there are 6 axes + 1 gripper
 	std::array<can_msgs::msg::Frame, 7> sendQueue;
