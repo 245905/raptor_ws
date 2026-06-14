@@ -265,3 +265,5 @@ rex_interfaces::msg::Wheels::ConstSharedPtr MotorControl::GetLastSentFrame() con
 {
 	return mLastSentFrame;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(MotorControl)

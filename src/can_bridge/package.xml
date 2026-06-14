@@ -12,6 +12,7 @@
   
   <depend>std_msgs</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>std_srvs</depend>
   <depend>can_msgs</depend>
   <build_depend>libVescCan</build_depend>

@@ -57,3 +57,5 @@ void SamplerStatusForwarder::statusPublisher()
 	if (mStatus8Fresh)
 		mStatus8Fresh = false;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(SamplerStatusForwarder)

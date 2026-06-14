@@ -2,6 +2,7 @@
 #define STATUSMESSAGE_HPP_
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 
 #include <can_bridge/VescInterop.hpp>
 #include "can_bridge/RosCanConstants.hpp"

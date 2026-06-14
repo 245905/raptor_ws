@@ -2,12 +2,12 @@
 #define VescStatusHandler_h_
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 #include <unordered_map>
 #include <boost/algorithm/algorithm.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <can_bridge/RosCanConstants.hpp>
-#include <can_bridge/MotorControl.hpp>
 #include <can_bridge/VescInterop.hpp>
 
 #include <can_msgs/msg/frame.hpp>

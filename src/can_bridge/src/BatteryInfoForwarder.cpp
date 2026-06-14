@@ -61,3 +61,5 @@ void BatteryInfoForwarder::batteryInfoPublisher()
 	if (mBatteryInfoFresh)
 		mBatteryInfoFresh = false;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(BatteryInfoForwarder)

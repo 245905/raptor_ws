@@ -42,3 +42,5 @@ can_msgs::msg::Frame ManipulatorControl::encodeStepper(const rex_interfaces::msg
 	VESC_convertCmdToRaw(&vesc_rf, &vesc_cf);
 	return VescInterop::vescToRos(vesc_rf);
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(ManipulatorControl)

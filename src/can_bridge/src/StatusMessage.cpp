@@ -54,3 +54,5 @@ can_msgs::msg::Frame StatusMessage::encodeStatusMessage(const rex_interfaces::ms
 	can_msgs::msg::Frame fr = VescInterop::vescToRos(rf);
 	return fr;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(StatusMessage)

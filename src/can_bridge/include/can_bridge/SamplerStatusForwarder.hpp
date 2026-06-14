@@ -2,6 +2,7 @@
 #define SamplerStatusForwarder_h_
 
 #include "rclcpp/rclcpp.hpp"
+#include <rclcpp_components/register_node_macro.hpp>
 #include <boost/shared_ptr.hpp>
 
 #include <can_bridge/RosCanConstants.hpp>

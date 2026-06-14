@@ -217,3 +217,5 @@ void MotorControl::handleSetMotorVel(const rex_interfaces::msg::Wheels::ConstSha
 {
     mLastSentFrame = msg;
 }
+
+RCLCPP_COMPONENTS_REGISTER_NODE(VescStatusHandler)
