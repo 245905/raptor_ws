@@ -35,10 +35,10 @@ target_include_directories(can_bridge_common PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
         $<INSTALL_INTERFACE:include>
         )
+target_link_libraries(can_bridge_common libVescCan)
 ament_target_dependencies(can_bridge_common
         rclcpp
         can_msgs
-        libVescCan
         )
 ament_export_targets(export_can_bridge_common)
 install(TARGETS can_bridge_common
