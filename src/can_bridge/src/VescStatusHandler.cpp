@@ -213,7 +213,7 @@ void VescStatusHandler::clear()
 	mMotorStatus.clear();
 }
 
-void MotorControl::handleSetMotorVel(const rex_interfaces::msg::Wheels::ConstSharedPtr &msg)
+void VescStatusHandler::handleSetMotorVel(const rex_interfaces::msg::Wheels::ConstSharedPtr &msg)
 {
     mLastSentFrame = msg;
 }

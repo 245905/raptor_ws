@@ -16,13 +16,13 @@ void ManipulatorControl::handleManipulatorCtl(const rex_interfaces::msg::Manipul
 	std::array<can_msgs::msg::Frame, 7> sendQueue;
 	auto sendQueueIter = sendQueue.begin();
 
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[0], RosCanConstants::VescIds::manipulator_axis_1);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[1], RosCanConstants::VescIds::manipulator_axis_2);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[2], RosCanConstants::VescIds::manipulator_axis_3);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[3], RosCanConstants::VescIds::manipulator_axis_4);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[4], RosCanConstants::VescIds::manipulator_axis_5);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).axes[5], RosCanConstants::VescIds::manipulator_axis_6);
-	*sendQueueIter++ = encodeStepper((*manipulatroCtlMsg).gripper, RosCanConstants::VescIds::manipulator_gripper);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[0], RosCanConstants::VescIds::manipulator_axis_1);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[1], RosCanConstants::VescIds::manipulator_axis_2);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[2], RosCanConstants::VescIds::manipulator_axis_3);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[3], RosCanConstants::VescIds::manipulator_axis_4);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[4], RosCanConstants::VescIds::manipulator_axis_5);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).axes[5], RosCanConstants::VescIds::manipulator_axis_6);
+	*sendQueueIter++ = encodeStepper((*manipulatorCtlMsg).gripper, RosCanConstants::VescIds::manipulator_gripper);
 
 	for (auto iter = sendQueue.begin(); iter < sendQueue.end(); iter++)
 		mRawCanPub->publish(*iter);
