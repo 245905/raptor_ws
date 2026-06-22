@@ -129,4 +129,4 @@ void SamplerControl::publish(const VESC_CommandFrame *arr, int arr_size)
 	}
 }
 
-#include <rclcpp_components/register_node_macro.hpp>
+RCLCPP_COMPONENTS_REGISTER_NODE(SamplerControl)
