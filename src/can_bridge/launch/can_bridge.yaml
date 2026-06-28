@@ -11,6 +11,8 @@ launch:
     exec: "status_message"
     name: "status_message"
     namespace: "raptor"
+    ros__parameters:
+      send_on_update: true
 
 - node:
     pkg: "can_bridge"

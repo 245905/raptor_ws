@@ -18,7 +18,7 @@ extern "C"
 class StatusMessage : public rclcpp::Node
 {
 public:
-	StatusMessage(const rclcpp::NodeOptions & options, bool sendOnUpdate = true);
+	StatusMessage(const rclcpp::NodeOptions & options);
 
 	void sendStatusMessage(const rex_interfaces::msg::RoverStatus::ConstSharedPtr &msg);
 	void sendStatusMessage();

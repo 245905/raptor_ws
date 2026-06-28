@@ -1,13 +1,15 @@
 #include "can_bridge/StatusMessage.hpp"
 
-StatusMessage::StatusMessage(const rclcpp::NodeOptions & options, bool sendOnUpdate) : Node("status_message", options)
+StatusMessage::StatusMessage(const rclcpp::NodeOptions & options) : Node("status_message", options)
 {
 	rex_interfaces::msg::RoverStatus zeroMsg;
 	zeroMsg.communication_state = 0;
 	zeroMsg.control_mode = 0;
 	zeroMsg.pad_connected = false;
 	mLastStatus = zeroMsg;
-	mSendOnUpdate = sendOnUpdate;
+
+    this->declare_parameter<bool>("send_on_update", true);
+    mSendOnUpdate = this->get_parameter("send_on_update").as_bool();
 
 	const rclcpp::QoS qos = rclcpp::QoS(rclcpp::KeepLast(256));
 
