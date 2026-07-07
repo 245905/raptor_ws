@@ -31,6 +31,7 @@ private:
 	bool mSendOnUpdate;					     	  /**< Flag to send messages on update. */
 	rex_interfaces::msg::RoverStatus mLastStatus; /**< Last status message received. */
 
+    rclcpp::TimerBase::SharedPtr mTimer;
 	rclcpp::Publisher<can_msgs::msg::Frame>::SharedPtr mRawCanPub;			    		 /**< ROS2 publisher for raw CAN messages. */
 	rclcpp::Subscription<rex_interfaces::msg::RoverStatus>::SharedPtr mStatusMessageSub; /**< ROS2 subscriber for communication status messages. */
 };
