@@ -78,6 +78,10 @@ private:
 	std::unordered_map<MotorStatusKey, MotorStatusValue, MyHash<MotorStatusKey>> mMotorStatus;
 	std::unordered_map<uint8_t, rclcpp::Time> mMotorLastUpdates;
 
+    std::vector<uint8_t> activeVescIDs;
+    size_t currentVescIndex = 0;
+    std::set<uint8_t> discoveredVescs;
+
 	rclcpp::Subscription<can_msgs::msg::Frame>::SharedPtr mStatusGrabber;
 	rclcpp::Publisher<rex_interfaces::msg::VescStatus>::SharedPtr mStatusPublisher;
     rclcpp::Subscription<rex_interfaces::msg::Wheels>::SharedPtr mSetMotorVelSub;

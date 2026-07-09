@@ -11,7 +11,7 @@ VescStatusHandler::VescStatusHandler(const rclcpp::NodeOptions & options) : Node
 	mStatusPublisher = this->create_publisher<rex_interfaces::msg::VescStatus>(
 		RosCanConstants::RosTopics::can_vesc_status, qos);
 
-	mSendTimer = this->create_timer(std::chrono::milliseconds(50), std::bind(&VescStatusHandler::timer_method, this));
+	mSendTimer = this->create_timer(std::chrono::milliseconds(6), std::bind(&VescStatusHandler::timer_method, this));
 
     mSetMotorVelSub = this->create_subscription<rex_interfaces::msg::Wheels>(
             RosCanConstants::RosTopics::can_set_motor_vel,
@@ -54,6 +54,12 @@ void VescStatusHandler::statusGrabber(const can_msgs::msg::Frame::ConstSharedPtr
 		default:
 			return;
 	}
+
+    if (discoveredVescs.find(vescFrame.vescID) == discoveredVescs.end()) {
+        discoveredVescs.insert(vescFrame.vescID);
+        activeVescIDs.push_back(vescFrame.vescID);
+        RCLCPP_INFO(this->get_logger(), "Discovered new VESC: 0x%02X", vescFrame.vescID);
+    }
 
 	auto key = MotorStatusKey(vescFrame.vescID, (VESC_Command)vescFrame.command);
 	auto value = MotorStatusValue(vescFrame, frame->header.stamp);
@@ -193,19 +199,22 @@ void VescStatusHandler::sendUpdate(uint8_t vescId)
 
 void VescStatusHandler::timer_method()
 {
-	auto time_now = this->now();
+    if (activeVescIDs.empty()) return;
 
-	for(auto kvp : mMotorLastUpdates)
-	{
-		if(time_now - kvp.second < rclcpp::Duration(1, 0))
-		{
-			sendUpdate(kvp.first);
-		}
-		else
-		{
-			RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 30000, "VescStatus for motor %d is stale", kvp.first);
-		}
-	}
+    if (currentVescIndex >= activeVescIDs.size()) {
+        currentVescIndex = 0;
+    }
+
+    uint8_t vescId = activeVescIDs[currentVescIndex];
+
+    auto last_update = mMotorLastUpdates[vescId];
+    if (this->now() - last_update < rclcpp::Duration(1, 0)) {
+        sendUpdate(vescId);
+    } else {
+        RCLCPP_WARN_THROTTLE(this->get_logger(), *this->get_clock(), 5000, "VESC 0x%02X is silent", vescId);
+    }
+
+    currentVescIndex++;
 }
 
 void VescStatusHandler::clear()
