@@ -19,7 +19,9 @@ StatusMessage::StatusMessage(const rclcpp::NodeOptions & options) : Node("status
 		RosCanConstants::RosTopics::mqtt_rover_status, qos,
 		std::bind(&StatusMessage::handleStatusMessage, this, std::placeholders::_1));
 
-    mTimer = this->create_wall_timer(std::chrono::milliseconds(500), std::bind(&StatusMessage::sendStatusMessage, this));
+    mTimer = this->create_wall_timer(
+            std::chrono::milliseconds(500),
+            std::bind(static_cast<void(StatusMessage::*)()>(&StatusMessage::sendStatusMessage), this));
 }
 
 void StatusMessage::handleStatusMessage(const rex_interfaces::msg::RoverStatus::ConstSharedPtr &msg)
